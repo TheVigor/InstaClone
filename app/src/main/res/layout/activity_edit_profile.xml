@@ -1,49 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditProfileActivity"
-    android:background="@color/white">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    tools:context=".EditProfileActivity">
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/whiteish"
-        android:elevation="4dp"
-        app:contentInsetStart="0dp">
+        android:layout_height="wrap_content"
+        android:background="@color/white">
 
-        <android.support.constraint.ConstraintLayout
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="50dp"
+            android:background="@color/whiteish"
+            android:elevation="4dp"
+            app:contentInsetStart="0dp">
 
-            <ImageView
-                android:id="@+id/close_image"
-                style="@style/toolbar_image"
-                android:src="@drawable/ic_close"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <TextView
-                style="@style/toolbar_title"
-                app:layout_constraintStart_toEndOf="@id/close_image"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:text="Edit Profile"/>
+                <ImageView
+                    android:id="@+id/close_image"
+                    style="@style/toolbar_image"
+                    android:src="@drawable/ic_close"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <ImageView
-                android:id="@+id/save_image"
-                style="@style/toolbar_image"
-                android:src="@drawable/ic_check"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                <TextView
+                    style="@style/toolbar_title"
+                    app:layout_constraintStart_toEndOf="@id/close_image"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:text="Edit Profile"/>
+
+                <ImageView
+                    android:id="@+id/save_image"
+                    style="@style/toolbar_image"
+                    android:src="@drawable/ic_check"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
 
-        </android.support.constraint.ConstraintLayout>
-    </android.support.v7.widget.Toolbar>
+            </android.support.constraint.ConstraintLayout>
+        </android.support.v7.widget.Toolbar>
 
-</android.support.constraint.ConstraintLayout>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/android_picture"
+            android:layout_marginTop="15dp"
+            app:civ_border_width="1dp"
+            app:civ_border_color="@color/grey"/>
+
+        <TextView
+            android:id="@+id/name_label"
+            style="@style/edit_profile_label"
+            android:text="Name"
+            android:labelFor="@+id/name_input"
+            app:layout_constraintTop_toBottomOf="@id/profile_image"/>
+
+        <EditText
+            android:id="@+id/name_input"
+            style="@style/edit_profile_input"
+            app:layout_constraintTop_toBottomOf="@id/name_label"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/username_label"
+            style="@style/edit_profile_label"
+            android:text="Username"
+            android:labelFor="@+id/username_input"
+            app:layout_constraintTop_toBottomOf="@id/name_input"/>
+
+        <EditText
+            android:id="@+id/username_input"
+            style="@style/edit_profile_input"
+            app:layout_constraintTop_toBottomOf="@id/username_label"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/website_label"
+            style="@style/edit_profile_label"
+            android:text="Website"
+            android:labelFor="@+id/website_input"
+            app:layout_constraintTop_toBottomOf="@id/username_input"/>
+
+        <EditText
+            android:id="@+id/website_input"
+            style="@style/edit_profile_input"
+            app:layout_constraintTop_toBottomOf="@id/website_label"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/bio_label"
+            style="@style/edit_profile_label"
+            android:text="Bio"
+            android:labelFor="@+id/bio_input"
+            app:layout_constraintTop_toBottomOf="@id/website_input"/>
+
+        <EditText
+            android:id="@+id/bio_input"
+            style="@style/edit_profile_input"
+            app:layout_constraintTop_toBottomOf="@id/bio_label"
+            android:inputType="text" />
+
+
+        <TextView
+            android:id="@+id/private_info_text"
+            style="@style/edit_profile_label"
+            android:text="Private Information"
+            android:labelFor="@+id/bio_input"
+            app:layout_constraintTop_toBottomOf="@id/bio_input"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/email_label"
+            style="@style/edit_profile_label"
+            android:text="Email"
+            android:labelFor="@+id/email_input"
+            app:layout_constraintTop_toBottomOf="@id/private_info_text"/>
+
+        <EditText
+            android:id="@+id/email_input"
+            style="@style/edit_profile_input"
+            app:layout_constraintTop_toBottomOf="@id/email_label"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:id="@+id/phone_label"
+            style="@style/edit_profile_label"
+            android:text="Phone"
+            android:labelFor="@+id/phone_input"
+            app:layout_constraintTop_toBottomOf="@id/email_input"/>
+
+        <EditText
+            android:id="@+id/phone_input"
+            style="@style/edit_profile_input"
+            app:layout_constraintTop_toBottomOf="@id/phone_label"
+            android:inputType="phone" />
+
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>
