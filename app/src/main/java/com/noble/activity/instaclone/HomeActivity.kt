@@ -1,26 +1,31 @@
 package com.noble.activity.instaclone
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 
 class HomeActivity : BaseActivity(0) {
     private val TAG = "HomeActivity"
 
+    private lateinit var mAuth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setupBottomNavigation()
 
-        val auth = FirebaseAuth.getInstance()
-        auth.signInWithEmailAndPassword("the.noble.activity@gmail.com", "pass123")
-                .addOnCompleteListener{
-                    if (it.isSuccessful) {
-                        Toast.makeText(this, "Signin completed", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(this, "Signin failed", Toast.LENGTH_LONG).show()
-                    }
-                }
+        mAuth = FirebaseAuth.getInstance()
+        mAuth.signOut()
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (mAuth.currentUser == null) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
     }
 }
