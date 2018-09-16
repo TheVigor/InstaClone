@@ -1,7 +1,8 @@
-package com.noble.activity.instaclone
+package com.noble.activity.instaclone.activities
 
 import android.content.Intent
 import android.os.Bundle
+import com.noble.activity.instaclone.R
 import kotlinx.android.synthetic.main.activity_profile.*
 
 class ProfileActivity : BaseActivity(4) {

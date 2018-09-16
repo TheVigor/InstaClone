@@ -1,6 +1,7 @@
-package com.noble.activity.instaclone
+package com.noble.activity.instaclone.activities
 
 import android.os.Bundle
+import com.noble.activity.instaclone.R
 
 class LikesActivity : BaseActivity(3) {
 

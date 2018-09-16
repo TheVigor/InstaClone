@@ -1,7 +1,6 @@
-package com.noble.activity.instaclone
+package com.noble.activity.instaclone.activities
 
 import android.content.Intent
-import android.inputmethodservice.Keyboard
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -9,6 +8,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.noble.activity.instaclone.R
 import kotlinx.android.synthetic.main.activity_login.*
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
@@ -66,8 +66,7 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener, Text
                 }
             }
         } else {
-            Toast.makeText(this, "Please enter email and password", Toast.LENGTH_LONG)
-                    .show()
+            showToast("Please enter email and password")
         }
     }
 
