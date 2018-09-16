@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "189916161052",
+    "firebase_url": "https://instaclone-ba232.firebaseio.com",
+    "project_id": "instaclone-ba232",
+    "storage_bucket": "instaclone-ba232.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:189916161052:android:b9573063f06c1cc9",
+        "android_client_info": {
+          "package_name": "com.noble.activity.instaclone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "189916161052-tbe8ukod70jpuc76884d9obejpei289e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.noble.activity.instaclone",
+            "certificate_hash": "bf1529efb9229e5f2ab231707ab30c700d7b12b7"
+          }
+        },
+        {
+          "client_id": "189916161052-ok46664n2j3fue3243q5i9aa0iklbatm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCClxOonAauBCHzJfW0yl9FAoRKvBPnmYo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "189916161052-ok46664n2j3fue3243q5i9aa0iklbatm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
