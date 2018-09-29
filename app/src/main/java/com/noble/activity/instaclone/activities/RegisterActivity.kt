@@ -10,17 +10,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
 import com.noble.activity.instaclone.R
 import com.noble.activity.instaclone.models.User
-import kotlinx.android.synthetic.main.activity_register.*
 import kotlinx.android.synthetic.main.fragment_register_email.*
 import kotlinx.android.synthetic.main.fragment_register_namepass.*
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
 
 
 class RegisterActivity : AppCompatActivity(), EmailFragment.Listener, NamePassFragment.Listener {
@@ -45,22 +43,28 @@ class RegisterActivity : AppCompatActivity(), EmailFragment.Listener, NamePassFr
     override fun onNext(email: String) {
         if (email.isNotEmpty()) {
             mEmail= email
-            mAuth.fetchSignInMethodsForEmail(email).addOnCompleteListener{
-                if (it.isSuccessful) {
-                    if (it.result.signInMethods?.isEmpty() != false) {
+            mAuth.fetchSignInMethodsForEmail(email){signInMethods ->
+                if (signInMethods.isEmpty()) {
                         supportFragmentManager.beginTransaction().replace(R.id.frame_layout, NamePassFragment())
                                 .addToBackStack(null)
                                 .commit()
                     } else {
                         showToast("This email is already exists")
                     }
-                }  else {
-                    showToast(it.exception!!.message!!)
                 }
-            }
-
         } else {
             showToast("Please enter email")
+        }
+    }
+
+    private fun FirebaseAuth.fetchSignInMethodsForEmail(email: String,
+                                                        onSuccess: (List<String>) -> Unit) {
+        fetchSignInMethodsForEmail(email).addOnCompleteListener{
+            if (it.isSuccessful) {
+                onSuccess(it.result.signInMethods ?: emptyList<String>())
+            }  else {
+                showToast(it.exception!!.message!!)
+            }
         }
     }
 
@@ -68,24 +72,11 @@ class RegisterActivity : AppCompatActivity(), EmailFragment.Listener, NamePassFr
         if (fullName.isNotEmpty() && password.isNotEmpty()) {
             val email = mEmail
             if (email != null) {
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener{
-                            if (it.isSuccessful) {
-                                val user = makeUser(fullName, email)
-                                val reference = mDatabase.child("users").child(it.result.user.uid)
-                                reference.setValue(user)
-                                        .addOnCompleteListener{
-                                            if (it.isSuccessful) {
-                                                startHomeActivity()
-                                            } else {
-                                                showToast("Failed to create user profile")
-                                            }
-                                        }
-                            } else {
-                                showToast("Failed to create user")
-                            }
-                        }
-
+                mAuth.createUserWithEmailAndPassword(email, password){
+                    mDatabase.createUser(it.user.uid, makeUser(fullName, email)) {
+                        startHomeActivity()
+                    }
+                }
             } else {
                 showToast("Email is null")
                 supportFragmentManager.popBackStack()
@@ -93,6 +84,30 @@ class RegisterActivity : AppCompatActivity(), EmailFragment.Listener, NamePassFr
         } else {
             showToast("Please enter full name and password")
         }
+    }
+
+    private fun DatabaseReference.createUser(uid: String, user: User, onSuccess: () -> Unit) {
+        val reference = child("users").child(uid)
+        reference.setValue(user)
+                .addOnCompleteListener{
+                    if (it.isSuccessful) {
+                        onSuccess()
+                    } else {
+                        showToast("Failed to create user profile")
+                    }
+                }
+    }
+
+    private fun FirebaseAuth.createUserWithEmailAndPassword(email: String, password: String,
+                                                            onSuccess: (AuthResult) -> Unit) {
+        createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener{
+                    if (it.isSuccessful) {
+                        onSuccess(it.result)
+                    } else {
+                        showToast("Failed to create user")
+                    }
+                }
     }
 
     private fun startHomeActivity() {
