@@ -1,7 +1,13 @@
 package com.noble.activity.instaclone.activities
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.support.v4.content.FileProvider
 import android.widget.TextView
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -9,10 +15,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.noble.activity.instaclone.R
 import com.noble.activity.instaclone.models.User
 import com.noble.activity.instaclone.views.PasswordDialog
 import kotlinx.android.synthetic.main.activity_edit_profile.*
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
 
@@ -21,6 +32,13 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
 
     private lateinit var mAuth: FirebaseAuth
     private lateinit var mDatabase: DatabaseReference
+    private lateinit var mStorage: StorageReference
+
+    private val TAKE_PICTURE_REQUEST_CODE = 1
+
+    val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+
+    private lateinit var mImageUri: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +52,12 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
             updateProfile()
         }
 
+        change_photo_text.setOnClickListener { takeCameraPicture() }
+
         mAuth = FirebaseAuth.getInstance()
         mDatabase = FirebaseDatabase.getInstance().reference
+        mStorage = FirebaseStorage.getInstance().reference
+
         mDatabase.child("users").child(mAuth.currentUser!!.uid).addListenerForSingleValueEvent(
                 ValueEventListenerAdapter {
                     mUser = it.getValue(User::class.java)!!
@@ -49,6 +71,56 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
 
                 })
 
+    }
+
+    private fun takeCameraPicture() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (intent.resolveActivity(packageManager) != null) {
+            val imageFile = createImageFile()
+            mImageUri = FileProvider.getUriForFile(
+                    this,
+                    "com.noble.activity.instaclone.fileprovider",
+                    imageFile)
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri)
+            startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE)
+        }
+    }
+
+    private fun createImageFile(): File {
+        val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+                "JPEG_${simpleDateFormat.format(Date())}_",
+                ".jpg",
+                storageDir
+        )
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+
+            val uid = mAuth.currentUser!!.uid
+            val ref = mStorage.child("users/$uid/photo")
+
+            ref.putFile(mImageUri).addOnCompleteListener{ it ->
+                if(it.isSuccessful) {
+                    ref.downloadUrl.addOnCompleteListener {
+                        val photoUrl = it.result.toString()
+                        mDatabase.child("users/$uid/photo").setValue(photoUrl).addOnCompleteListener{
+                            if (it.isSuccessful){
+                                //обновляем наш USERS
+                                //mUser = mUser.copy(photo = photoUrl)
+                                //profile_image.loadUserPhoto(mUser.photo)
+                            }else{
+                                showToast(it.exception!!.message!!)
+                            }
+                        }
+                    }
+
+                } else {
+                    showToast(it.exception!!.message!!)
+                }
+            }
+        }
     }
 
     private fun updateProfile() {
@@ -140,7 +212,7 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
     }
 
     private fun DatabaseReference.updateUser(uid: String, updates: Map<String, Any>, onSuccess: () -> Unit) {
-        child("users").child(mAuth.currentUser!!.uid).updateChildren(updates)
+        child("users").child(uid).updateChildren(updates)
             .addOnCompleteListener{
                 if (it.isSuccessful) {
                     onSuccess()
