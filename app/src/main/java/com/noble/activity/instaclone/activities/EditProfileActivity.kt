@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
+import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -67,8 +68,8 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
                     website_input.setText(mUser.website, TextView.BufferType.EDITABLE)
                     bio_input.setText(mUser.bio, TextView.BufferType.EDITABLE)
                     email_input.setText(mUser.email, TextView.BufferType.EDITABLE)
-                    phone_input.setText(mUser.phone.toString(), TextView.BufferType.EDITABLE)
-
+                    phone_input.setText(mUser.phone?.toString(), TextView.BufferType.EDITABLE)
+                    profile_image.loadUserPhoto(mUser.photo)
                 })
 
     }
@@ -107,9 +108,8 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
                         val photoUrl = it.result.toString()
                         mDatabase.child("users/$uid/photo").setValue(photoUrl).addOnCompleteListener{
                             if (it.isSuccessful){
-                                //обновляем наш USERS
-                                //mUser = mUser.copy(photo = photoUrl)
-                                //profile_image.loadUserPhoto(mUser.photo)
+                                mUser = mUser.copy(photo = photoUrl)
+                                profile_image.loadUserPhoto(mUser.photo)
                             }else{
                                 showToast(it.exception!!.message!!)
                             }
@@ -140,15 +140,13 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
     }
 
     private fun readInputs(): User {
-        val phoneStr = phone_input.text.toString()
-
         return User(
                 name = name_input.text.toString(),
                 username = username_input.text.toString(),
-                website = website_input.text.toString(),
-                bio = bio_input.text.toString(),
                 email = email_input.text.toString(),
-                phone = if (phoneStr.isEmpty()) 0 else phoneStr.toLong()
+                website = website_input.text.toStringOrNull(),
+                bio = bio_input.text.toStringOrNull(),
+                phone = phone_input.text.toString().toLongOrNull()
         )
     }
 
@@ -162,7 +160,7 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
         }
 
     private fun updateUser(user: User) {
-        val updatesMap = mutableMapOf<String, Any>()
+        val updatesMap = mutableMapOf<String, Any?>()
 
         if (user.name != mUser.name) updatesMap["name"] = user.name
         if (user.username != mUser.username) updatesMap["username"] = user.username
@@ -211,7 +209,7 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
         }
     }
 
-    private fun DatabaseReference.updateUser(uid: String, updates: Map<String, Any>, onSuccess: () -> Unit) {
+    private fun DatabaseReference.updateUser(uid: String, updates: Map<String, Any?>, onSuccess: () -> Unit) {
         child("users").child(uid).updateChildren(updates)
             .addOnCompleteListener{
                 if (it.isSuccessful) {
