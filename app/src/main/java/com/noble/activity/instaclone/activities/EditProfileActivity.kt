@@ -2,13 +2,8 @@ package com.noble.activity.instaclone.activities
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
-import android.support.v4.content.FileProvider
-import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -20,11 +15,11 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.noble.activity.instaclone.R
 import com.noble.activity.instaclone.models.User
+import com.noble.activity.instaclone.utils.CameraPictureTaker
+import com.noble.activity.instaclone.utils.ValueEventListenerAdapter
 import com.noble.activity.instaclone.views.PasswordDialog
 import kotlinx.android.synthetic.main.activity_edit_profile.*
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
+
 
 class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
 
@@ -35,11 +30,7 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
     private lateinit var mDatabase: DatabaseReference
     private lateinit var mStorage: StorageReference
 
-    private val TAKE_PICTURE_REQUEST_CODE = 1
-
-    val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-
-    private lateinit var mImageUri: Uri
+    private lateinit var mCameraPictureTaker: CameraPictureTaker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +44,9 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
             updateProfile()
         }
 
-        change_photo_text.setOnClickListener { takeCameraPicture() }
+        mCameraPictureTaker = CameraPictureTaker(this)
+
+        change_photo_text.setOnClickListener { mCameraPictureTaker.takeCameraPicture() }
 
         mAuth = FirebaseAuth.getInstance()
         mDatabase = FirebaseDatabase.getInstance().reference
@@ -63,56 +56,32 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
                 ValueEventListenerAdapter {
                     mUser = it.getValue(User::class.java)!!
 
-                    name_input.setText(mUser.name, TextView.BufferType.EDITABLE)
-                    username_input.setText(mUser.username, TextView.BufferType.EDITABLE)
-                    website_input.setText(mUser.website, TextView.BufferType.EDITABLE)
-                    bio_input.setText(mUser.bio, TextView.BufferType.EDITABLE)
-                    email_input.setText(mUser.email, TextView.BufferType.EDITABLE)
-                    phone_input.setText(mUser.phone?.toString(), TextView.BufferType.EDITABLE)
+                    name_input.setText(mUser.name)
+                    username_input.setText(mUser.username)
+                    website_input.setText(mUser.website)
+                    bio_input.setText(mUser.bio)
+                    email_input.setText(mUser.email)
+                    phone_input.setText(mUser.phone?.toString())
                     profile_image.loadUserPhoto(mUser.photo)
                 })
 
     }
 
-    private fun takeCameraPicture() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (intent.resolveActivity(packageManager) != null) {
-            val imageFile = createImageFile()
-            mImageUri = FileProvider.getUriForFile(
-                    this,
-                    "com.noble.activity.instaclone.fileprovider",
-                    imageFile)
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri)
-            startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE)
-        }
-    }
-
-    private fun createImageFile(): File {
-        val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-                "JPEG_${simpleDateFormat.format(Date())}_",
-                ".jpg",
-                storageDir
-        )
-    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == mCameraPictureTaker.TAKE_PICTURE_REQUEST_CODE
+                && resultCode == Activity.RESULT_OK) {
 
             val uid = mAuth.currentUser!!.uid
             val ref = mStorage.child("users/$uid/photo")
 
-            ref.putFile(mImageUri).addOnCompleteListener{ it ->
+            ref.putFile(mCameraPictureTaker.mImageUri!!).addOnCompleteListener{ it ->
                 if(it.isSuccessful) {
                     ref.downloadUrl.addOnCompleteListener {
                         val photoUrl = it.result.toString()
-                        mDatabase.child("users/$uid/photo").setValue(photoUrl).addOnCompleteListener{
-                            if (it.isSuccessful){
-                                mUser = mUser.copy(photo = photoUrl)
-                                profile_image.loadUserPhoto(mUser.photo)
-                            }else{
-                                showToast(it.exception!!.message!!)
-                            }
+                        mDatabase.updateUserPhoto(uid, photoUrl) {
+                            mUser = mUser.copy(photo = photoUrl)
+                            profile_image.loadUserPhoto(mUser.photo)
                         }
                     }
 
@@ -186,6 +155,17 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
             }
         } else {
             showToast("You should enter your password")
+        }
+    }
+
+    private fun DatabaseReference.updateUserPhoto(uid: String, photoUrl: String,
+                                                  onSuccess: () -> Unit) {
+        child("users/$uid/photo").setValue(photoUrl).addOnCompleteListener{
+            if (it.isSuccessful){
+                onSuccess()
+            }else{
+                showToast(it.exception!!.message!!)
+            }
         }
     }
 
