@@ -19,6 +19,7 @@
             android:layout_height="wrap_content">
 
             <TextView
+                android:id="@+id/username_text"
                 style="@style/toolbar_title"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
