@@ -16,6 +16,7 @@ import com.google.firebase.storage.StorageReference
 import com.noble.activity.instaclone.R
 import com.noble.activity.instaclone.models.User
 import com.noble.activity.instaclone.utils.CameraPictureTaker
+import com.noble.activity.instaclone.utils.FirebaseHelper
 import com.noble.activity.instaclone.utils.ValueEventListenerAdapter
 import com.noble.activity.instaclone.views.PasswordDialog
 import kotlinx.android.synthetic.main.activity_edit_profile.*
@@ -26,9 +27,7 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
     private lateinit var mUser: User
     private lateinit var mPendingUser: User
 
-    private lateinit var mAuth: FirebaseAuth
-    private lateinit var mDatabase: DatabaseReference
-    private lateinit var mStorage: StorageReference
+    private lateinit var mFirebaseHelper: FirebaseHelper
 
     private lateinit var mCameraPictureTaker: CameraPictureTaker
 
@@ -48,11 +47,9 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
 
         change_photo_text.setOnClickListener { mCameraPictureTaker.takeCameraPicture() }
 
-        mAuth = FirebaseAuth.getInstance()
-        mDatabase = FirebaseDatabase.getInstance().reference
-        mStorage = FirebaseStorage.getInstance().reference
+        mFirebaseHelper = FirebaseHelper(this)
 
-        mDatabase.child("users").child(mAuth.currentUser!!.uid).addListenerForSingleValueEvent(
+        mFirebaseHelper.currentUserReference().addListenerForSingleValueEvent(
                 ValueEventListenerAdapter {
                     mUser = it.getValue(User::class.java)!!
 
@@ -72,14 +69,14 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
         if (requestCode == mCameraPictureTaker.TAKE_PICTURE_REQUEST_CODE
                 && resultCode == Activity.RESULT_OK) {
 
-            val uid = mAuth.currentUser!!.uid
-            val ref = mStorage.child("users/$uid/photo")
+            val uid = mFirebaseHelper.mAuth.currentUser!!.uid
+            val ref = mFirebaseHelper.mStorage.child("users/$uid/photo")
 
             ref.putFile(mCameraPictureTaker.mImageUri!!).addOnCompleteListener{ it ->
                 if(it.isSuccessful) {
                     ref.downloadUrl.addOnCompleteListener {
                         val photoUrl = it.result.toString()
-                        mDatabase.updateUserPhoto(uid, photoUrl) {
+                        mFirebaseHelper.updateUserPhoto(photoUrl) {
                             mUser = mUser.copy(photo = photoUrl)
                             profile_image.loadUserPhoto(mUser.photo)
                         }
@@ -138,7 +135,7 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
         if (user.email != mUser.email) updatesMap["email"] = user.email
         if (user.phone != mUser.phone) updatesMap["phone"] = user.phone
 
-        mDatabase.updateUser(mAuth.currentUser!!.uid, updatesMap){
+        mFirebaseHelper.updateUser(updatesMap){
             showToast("Profile saved")
             finish()
         }
@@ -148,8 +145,8 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
     override fun onPasswordConfirm(password: String) {
         if (password.isNotEmpty()) {
             val credential = EmailAuthProvider.getCredential(mUser.email, password)
-            mAuth.currentUser!!.reauthenticate(credential){
-                mAuth.currentUser!!.updateEmail(mPendingUser.email){
+            mFirebaseHelper.reauthenticate(credential){
+                mFirebaseHelper.updateEmail(mPendingUser.email){
                     updateUser(mPendingUser)
                 }
             }
