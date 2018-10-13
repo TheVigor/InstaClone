@@ -4,15 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.TextView
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.noble.activity.instaclone.R
 import com.noble.activity.instaclone.models.User
 import com.noble.activity.instaclone.utils.CameraPictureTaker
@@ -35,7 +30,7 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        close_image.setOnClickListener{
+        back_image.setOnClickListener{
             finish()
         }
 

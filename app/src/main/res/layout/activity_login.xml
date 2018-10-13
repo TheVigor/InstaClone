@@ -24,26 +24,26 @@
             android:id="@+id/email_input"
             app:layout_constraintTop_toBottomOf="@+id/instagram_image"
             android:layout_marginTop="40dp"
-            style="@style/login_input"
+            style="@style/big_input"
             android:inputType="textEmailAddress"
             android:hint="Email"
-            android:background="@drawable/login_input_bg"/>
+            android:background="@drawable/big_input_bg"/>
 
 
         <EditText
             android:id="@+id/password_input"
             app:layout_constraintTop_toBottomOf="@+id/email_input"
-            style="@style/login_input"
+            style="@style/big_input"
             android:inputType="textPassword"
             android:hint="Password"
-            android:background="@drawable/login_input_bg"/>
+            android:background="@drawable/big_input_bg"/>
 
         <Button
             android:id="@+id/login_btn"
 
             app:layout_constraintTop_toBottomOf="@+id/password_input"
             android:text="Log In"
-            style="@style/login_button"/>
+            style="@style/big_button"/>
 
         <TextView
             android:id="@+id/create_account_text"

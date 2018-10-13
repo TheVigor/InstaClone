@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/close_image"
+                    android:id="@+id/back_image"
                     style="@style/icon"
                     android:src="@drawable/ic_close"
                     app:layout_constraintStart_toStartOf="parent"
@@ -33,7 +33,7 @@
 
                 <TextView
                     style="@style/toolbar_title"
-                    app:layout_constraintStart_toEndOf="@id/close_image"
+                    app:layout_constraintStart_toEndOf="@id/back_image"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:text="Edit Profile"/>
