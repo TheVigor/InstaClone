@@ -45,3 +45,7 @@ fun Editable.toStringOrNull(): String? {
     return if (str.isEmpty()) null else str
 }
 
+fun ImageView.loadImage(image: String?) {
+    GlideApp.with(this).load(image).centerCrop().into(this)
+}
+
