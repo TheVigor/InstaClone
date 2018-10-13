@@ -25,7 +25,7 @@
 
                 <ImageView
                     android:id="@+id/close_image"
-                    style="@style/toolbar_image"
+                    style="@style/icon"
                     android:src="@drawable/ic_close"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -40,7 +40,7 @@
 
                 <ImageView
                     android:id="@+id/save_image"
-                    style="@style/toolbar_image"
+                    style="@style/icon"
                     android:src="@drawable/ic_check"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
