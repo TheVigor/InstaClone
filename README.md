@@ -1,6 +1,6 @@
 # InstaClone
 ---
-Simple Instagram clone based on Kotlin, Firebase (Auth, Database, Storage), Glide, BottomNavigationView, CircleImageView.
+Simple Instagram clone based on Kotlin, Firebase SDK (Auth, Database, Storage), Glide, BottomNavigationView, CircleImageView.
 
 Screenshots
 ===============
